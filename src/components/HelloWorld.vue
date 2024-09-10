@@ -14,9 +14,9 @@
         <textarea v-model="form.inputText" rows="3" placeholder="Insira sua entrada aqui"></textarea>
         <button @click="runIA">Enviar</button>
       </div>
-      
+
     </div>
-    <button type="button" @click="conectarMongoDB">Conectar com Mongo</button>
+    <button type="button" @click="saveMongoDB">Salvar Histórico</button>
   </div>
 </template>
 
@@ -54,20 +54,20 @@ export default {
     };
   },
   methods: {
-    async conectarMongoDB() {
-    try {
+    async saveMongoDB() {
+      try {
         // Fazendo uma requisição para o backend para verificar a conexão com MongoDB
-        const { status } = await axios.get('http://localhost:3000/api/test-connection');
-        
-        if (status === 200) {
-            console.log('Conexão com MongoDB estabelecida com sucesso.');
+        const { status } = await axios.post('http://localhost:3000/api/saveHistory');
+
+        if (status === 200 || status === 201) {
+          console.log('Histórico salvo com sucesso.');
         } else {
-            console.error('Falha ao conectar ao MongoDB. Status:', status);
+          console.error('Falha ao tentar salvar o histórico. Status:', status);
         }
-    } catch (error) {
-        console.error('Erro ao tentar conectar ao MongoDB:', error.message);
-    }
-},
+      } catch (error) {
+        console.error('Erro ao tentar salvar o histórico:', error.message);
+      }
+    },
 
     // async conectarMongo(bot) {
 
@@ -80,14 +80,17 @@ export default {
     //     this.messages.push({ role: 'bot', text: 'Ocorreu um erro ao tentar gerar a resposta. Por favor, tente novamente.' });
     //   }
     // },
+
     async runIA() {
       if (this.form.inputText.trim() === '') return;
 
-      this.messages.push({ role: 'user', text: this.form.inputText });
-      const userMessage = this.form.inputText;
+      const userMessage = { role: 'user', text: this.form.inputText };
+      this.messages.push(userMessage);
       this.form.inputText = '';
 
       try {
+        // Salvar a mensagem do usuário no MongoDB
+
 
         const chatSession = model.startChat({
           generationConfig,
@@ -97,13 +100,76 @@ export default {
           })),
         });
 
-        const result = await chatSession.sendMessage(userMessage);
-        this.messages.push({ role: 'bot', text: result.response.text() });
+        const result = await chatSession.sendMessage(userMessage.text);
+        const botMessage = { role: 'bot', text: result.response.text() };
+        this.messages.push(botMessage);
+
+        // Salvar a mensagem do bot no MongoDB
+
+        try {
+          await fetch('http://localhost:3000/api/saveHistory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userMessage),
+          });
+        } catch (error) {
+          console.log("Erro ao salvar prompt do usuário");
+        }
+
+        try {
+          await fetch('http://localhost:3000/api/saveHistory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(botMessage),
+          });
+        } catch (error) {
+          console.log("Erro ao salvar prompt do modelo");
+        }
+
       } catch (error) {
         console.error('Error fetching response from Google Generative AI:', error);
-        this.messages.push({ role: 'bot', text: 'Ocorreu um erro ao tentar gerar a resposta. Por favor, tente novamente.' });
+        const errorMessage = { role: 'bot', text: 'Ocorreu um erro ao tentar gerar a resposta. Por favor, tente novamente.' };
+        this.messages.push(errorMessage);
+
+        // Opcional: Salvar a mensagem de erro no MongoDB
+        await fetch('http://localhost:3000/api/saveHistory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(errorMessage),
+        });
       }
-    },
+    }
+
+    // async runIA() {
+    //   if (this.form.inputText.trim() === '') return;
+
+    //   const userMessage = { role: 'user', text: this.form.inputText };
+    //   this.form.inputText = '';
+    //   this.messages.push(userMessage);
+
+    //   try {
+    //     // Salvar a mensagem do usuário no MongoDB
+    //     await fetch('http://localhost:3000/api/saveHistory', {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify(userMessage),
+    //     });
+
+    //     // Simular uma resposta do bot
+    //     const botMessage = { role: 'bot', text: 'Resposta simulada do bot' };
+    //     this.messages.push(botMessage);
+
+    //     // Salvar a mensagem do bot no MongoDB
+    //     await fetch('http://localhost:5000/api/saveHistory', {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify(botMessage),
+    //     });
+    //   } catch (error) {
+    //     console.error('Erro ao salvar mensagens:', error);
+    //   }
+    // }
+
   },
 };
 </script>
