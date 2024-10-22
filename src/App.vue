@@ -15,7 +15,12 @@ export default {
 <style>
 body {
   background-image: url('@/assets/fundopiratanaufragio.jpg');
+  background-size: cover;
+  background-repeat: no-repeat; 
+  background-position: center; 
+  background-attachment: fixed; 
 }
+
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

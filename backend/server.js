@@ -1,91 +1,52 @@
-// // backend/server.js
-// const express = require('express');
-// const cors = require('cors');
-// const { MongoClient, ServerApiVersion } = require('mongodb');
-
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// const uri = "mongodb+srv://Wendel:<1234>@wendel.9eamttz.mongodb.net/?retryWrites=true&w=majority&appName=Wendel";
-// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true 
-// });
-
-// app.post('/api/chat', async (req, res) => {
-//   const userMessage = req.body.message;
-
-//   try {
-//     await client.connect();
-//     // const database = client.db('testDB');
-//     // const collection = database.collection('testCol');
-
-//     // const docCount = await collection.countDocuments({});
-//     console.log(`Número de documentos na coleção: ${docCount}`);
-
-//     const botReply = `Resposta gerada pelo bot para a mensagem: ${userMessage}`;
-//     res.json({ reply: botReply });
-//   } catch (error) {
-//     console.error('Erro ao conectar ao MongoDB:', error);
-//     res.status(401).send('Erro ao se conectar ao MongoDB');
-//   } finally {
-//     await client.close();
-//   }
-// });
-
-// app.listen(3000, () => {
-//   console.log('Servidor rodando na porta 3000');
-// });
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
 
 const app = express();
-const port = 3000;
-
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
+
+// Conectar ao MongoDB Atlas
 const uri = 'mongodb+srv://Wendel:1234@wendel.9eamttz.mongodb.net/?retryWrites=true&w=majority&appName=Wendel';
-const client = new MongoClient(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Conectado ao MongoDB Atlas'))
+    .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
+
+// Definir o Schema e o Model para o histórico
+const historySchema = new mongoose.Schema({
+    role: String,
+    text: String,
+    ip: String,
+    timestamp: { type: Date, default: Date.now }
 });
 
-app.post('/api/chat', async (req, res) => {
-    const userMessage = req.body.message;
+const History = mongoose.model('History', historySchema);
+
+
+// Endpoint para salvar histórico
+app.post('/api/saveHistory', async (req, res) => {
+    const { role, text } = req.body;
+    const ip = req.ip; // Capturar o IP do usuário
+    const historyEntry = new History({ role, text, ip });
 
     try {
-        await client.connect();
-        // const database = client.db('testDB');
-        // const collection = database.collection('testCol');
-
-        // const docCount = await collection.countDocuments({});
-        // console.log(`Número de documentos na coleção: ${docCount}`);
-
-        const botReply = `Resposta gerada pelo bot para a mensagem: ${userMessage}`;
-        res.json({ reply: botReply });
+        await historyEntry.save();
+        res.status(201).send({ message: 'Histórico salvo com sucesso!' });
     } catch (error) {
-        console.error('Erro ao conectar ao MongoDB:', error);
-        res.status(500).send('Erro ao se conectar ao MongoDB');
-    } finally {
-        await client.close();
+        res.status(500).send({ error: 'Erro ao salvar histórico.' });
     }
 });
 
-app.get('/api/test-connection', async (req, res) => {
+// Endpoint para recuperar o histórico completo
+app.get('/api/getHistory', async (req, res) => {
     try {
-        await client.connect();
-        // Verifica a conexão ao banco de dados
-        await client.db('admin').command({ ping: 1 });
-        res.status(200).send('Conexão com MongoDB estabelecida com sucesso.');
+        const history = await History.find();
+        res.status(200).send(history);
     } catch (error) {
-        console.error('Erro ao conectar ao MongoDB:', error);
-        res.status(500).send('Erro ao se conectar ao MongoDB');
-    } finally {
-        await client.close();
+        res.status(500).send({ error: 'Erro ao recuperar histórico.' });
     }
 });
 
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
