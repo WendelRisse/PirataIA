@@ -18,25 +18,47 @@ const historySchema = new mongoose.Schema({
     role: String,
     text: String,
     ip: String,
+    city: String,   // Novo campo para cidade
+    state: String,  // Novo campo para estado
+    country: String,// Novo campo para país
     timestamp: { type: Date, default: Date.now }
 });
+
 
 const History = mongoose.model('History', historySchema);
 
 
 // Endpoint para salvar histórico
+const axios = require('axios');
+
 app.post('/api/saveHistory', async (req, res) => {
     const { role, text } = req.body;
     const ip = req.ip; // Capturar o IP do usuário
-    const historyEntry = new History({ role, text, ip });
 
     try {
+        // Fazer uma requisição à API de geolocalização
+        const geoResponse = await axios.get(`http://ip-api.com/json/${ip}`);
+        const { city, regionName: state, country } = geoResponse.data; // Captura cidade, estado, e país
+
+        // Criar o objeto de histórico com a geolocalização
+        const historyEntry = new History({
+            role,
+            text,
+            ip,
+            city,  // Armazenar a cidade
+            state, // Armazenar o estado
+            country // Armazenar o país
+        });
+
+        // Salvar no MongoDB
         await historyEntry.save();
         res.status(201).send({ message: 'Histórico salvo com sucesso!' });
     } catch (error) {
+        console.error('Erro ao salvar histórico:', error);
         res.status(500).send({ error: 'Erro ao salvar histórico.' });
     }
 });
+
 
 // Endpoint para recuperar o histórico completo
 app.get('/api/getHistory', async (req, res) => {
