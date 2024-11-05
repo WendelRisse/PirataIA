@@ -70,7 +70,7 @@ export default {
 
     async saveMongoDB() {
       try {
-        const { status } = await axios.post('http://localhost:3000/api/saveHistory');
+        const { status } = await axios.post('https://pirataia.onrender.com/api/saveHistory');
         if (status === 200 || status === 201) {
           console.log('Histórico salvo com sucesso.');
         } else {
