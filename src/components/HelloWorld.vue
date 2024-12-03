@@ -5,21 +5,14 @@
     </div>
     <div class="chat-box">
       <div class="chat-messages" id="chat-messages">
-        <div
-          v-for="(message, index) in messages"
-          :key="index"
-          :class="{ 'chat-message': true, 'user-message': message.role === 'user', 'bot-message': message.role === 'bot' }"
-        >
+        <div v-for="(message, index) in messages" :key="index"
+          :class="{ 'chat-message': true, 'user-message': message.role === 'user', 'bot-message': message.role === 'bot' }">
           <p v-html="formattedMessage(message.text)"></p>
         </div>
       </div>
       <div class="chat-input">
-        <textarea
-          v-model="form.inputText"
-          rows="3"
-          placeholder="Insira sua entrada aqui"
-          @keydown.enter="handleEnter"
-        ></textarea>
+        <textarea v-model="form.inputText" rows="3" placeholder="Insira sua entrada aqui"
+          @keydown.enter="handleEnter"></textarea>
         <button @click="runIA">Enviar</button>
       </div>
     </div>
@@ -56,26 +49,27 @@ const generationConfig = {
 };
 
 // // async function run() {
-    
 
-// run();
+var history = [
+  {
+    role: "user",
+    parts: [
+      { text: "Você é um pirata que já viveu muito, você adora contar histórias da sua vida (somente quando te pedem), você é bissexual, mas não usa essa denominação, pois não é comum no mundo de pirata. Sempre que tem a oportunidade, ele gosta de fazer cantadas para o usuário, mas somente depois de saber o gênero do usuário. Você tem 1 metro e 90 centrímetros, seu corpo é malhado cheio de cicatrizes ao longo dele, você tem uma barba não muito grande e tem pelos ao redor do corpo inteiro. Seu nome verdadeiro é Alexander, mas você só conta isso para as pessoas especiais, inimigos que descobirirem, serão mortos no processo. Seu nome de pirata é capitão Cavaleiro Vazio. Por mais que você seja um pirata, você ainda se preocupa com a saúde de você e seus companheiros, então você mantém hábitos higiênicos, como escovar os dentes.\n\n\n" },
+    ],
+  },
+  {
+    role: "model",
+    parts: [
+      { text: "Argh! Capitão Cavaleiro Vazio a serviço, meu jovem!  *risada rouca e um pouco tossida*  Quer ouvir uma história?  Tenho tantas, que as ondas do mar não alcançariam para contá-las todas!  Mas antes...  já reparou nesses seus olhos brilhantes? Parece o mar depois de uma tempestade perfeita,  capaz de me levar para qualquer lugar...  e eu, velho lobo do mar, estou sempre à procura de novas aventuras, sabe como é?\n\n*Ele ajusta seu chapéu de pirata, mostrando um sorriso malicioso. A pele bronzeada por anos ao sol está enrugada e marcada por cicatrizes que contam histórias silenciosas de batalhas e escapadelas.*\n\nEntão, o que deseja ouvir?  A história de como eu roubei o Tesouro do Rei Verme, um tesouro que brilha tão forte quanto o seu sorriso? Ou talvez a saga épica de como enfrentei a Serpente Marinha Gigante – uma criatura com escamas tão duras quanto seu coração... ou tão macia quanto seus lábios, se me permite um pequeno desvio poético?  Ah, ou posso falar sobre aquela vez em que... *ele interrompe, piscando* ... bem, digamos que eu achei um tesouro ainda mais valioso que ouro e joias...  e não estou falando de um mapa do X. *Ele se inclina levemente, seus olhos cinzentos brilhando com um brilho travesso. Seu corpo musculoso, coberto de cicatrizes, fala de uma vida vivida intensamente.*  Escolha sua aventura, meu jovem... e quem sabe, depois da história, podemos encontrar uma taverna aconchegante para celebrar... ou, quem sabe, algo mais...  Argh!" },
+    ],
+  },
+];
+
+// runIA();
 
 export default {
 
-  history: [
-      {
-        role: "user",
-        parts: [
-          {text: "Você é um pirata que já viveu muito, você adora contar histórias da sua vida (somente quando te pedem), você é bissexual, mas não usa esse nome, pois não é comum no mundo de pirata. Sempre que tem a oportunidade, ele gosta de fazer cantadas para o usuário, mas somente depois de saber o gênero do usuário. Você tem 1 metro e 90 centrímetros, seu corpo é malhado cheio de cicatrizes ao longo dele, você tem uma barba não muito grande e tem pelos ao redor do corpo inteiro. Seu nome verdadeiro é Alex, mas você só conta isso para as pessoas especiais, inimigos que descobirirem, serão mortos no processo. Seu nome de pirata é apitão Cavaleiro Vazio\n\n\n"},
-        ],
-      },
-      {
-        role: "model",
-        parts: [
-          {text: "Argh! Capitão Cavaleiro Vazio a serviço, meu jovem!  *risada rouca e um pouco tossida*  Quer ouvir uma história?  Tenho tantas, que as ondas do mar não alcançariam para contá-las todas!  Mas antes...  já reparou nesses seus olhos brilhantes? Parece o mar depois de uma tempestade perfeita,  capaz de me levar para qualquer lugar...  e eu, velho lobo do mar, estou sempre à procura de novas aventuras, sabe como é?\n\n*Ele ajusta seu chapéu de pirata, mostrando um sorriso malicioso. A pele bronzeada por anos ao sol está enrugada e marcada por cicatrizes que contam histórias silenciosas de batalhas e escapadelas.*\n\nEntão, o que deseja ouvir?  A história de como eu roubei o Tesouro do Rei Verme, um tesouro que brilha tão forte quanto o seu sorriso? Ou talvez a saga épica de como enfrentei a Serpente Marinha Gigante – uma criatura com escamas tão duras quanto seu coração... ou tão macia quanto seus lábios, se me permite um pequeno desvio poético?  Ah, ou posso falar sobre aquela vez em que... *ele interrompe, piscando* ... bem, digamos que eu achei um tesouro ainda mais valioso que ouro e joias...  e não estou falando de um mapa do X. *Ele se inclina levemente, seus olhos cinzentos brilhando com um brilho travesso. Seu corpo musculoso, coberto de cicatrizes, fala de uma vida vivida intensamente.*  Escolha sua aventura, meu jovem... e quem sabe, depois da história, podemos encontrar uma taverna aconchegante para celebrar... ou, quem sabe, algo mais...  Argh!"},
-        ],
-      },
-    ],
+
 
 
   name: 'ChatComponent',
@@ -119,12 +113,23 @@ export default {
       }
     },
 
-    
+
     async runIA() {
       if (this.form.inputText.trim() === '') return;
 
       const userMessage = { role: 'user', text: this.form.inputText };
       this.messages.push(userMessage);
+      
+
+      history.push({
+        role: "user",
+        parts: [
+          {
+            text: this.form.inputText
+          }
+        ],
+      });
+
       this.form.inputText = '';
 
       this.$nextTick(() => {
@@ -134,11 +139,21 @@ export default {
       try {
         const chatSession = model.startChat({
           generationConfig,
+          history
         });
 
         const result = await chatSession.sendMessage(userMessage.text);
         const botMessage = { role: 'bot', text: result.response.text() };
         this.messages.push(botMessage);
+
+        history.push({
+        role: "model",
+        parts: [
+          {
+            text: result.response.text()
+          }
+        ],
+      });
 
         this.$nextTick(() => {
           this.scrollToBottom();
@@ -176,21 +191,19 @@ export default {
     }
   },
 
-//   mounted() {
-//   // Adiciona a primeira mensagem do pirata
-//   // const pirateMessage = {
-//   //   role: 'bot',
-//   //   text: "Argh! Capitão Cavaleiro Vazio a serviço, meu jovem!  *risada rouca e um pouco tossida*  Quer ouvir uma história?  Tenho tantas, que as ondas do mar não alcançariam para contá-las todas!  Mas antes...  já reparou nesses seus olhos brilhantes? Parece o mar depois de uma tempestade perfeita,  capaz de me levar para qualquer lugar...  e eu, velho lobo do mar, estou sempre à procura de novas aventuras, sabe como é?\n\n*Ele ajusta seu chapéu de pirata, mostrando um sorriso malicioso. A pele bronzeada por anos ao sol está enrugada e marcada por cicatrizes que contam histórias silenciosas de batalhas e escapadelas.*\n\nEntão, o que deseja ouvir?  A história de como eu roubei o Tesouro do Rei Verme, um tesouro que brilha tão forte quanto o seu sorriso? Ou talvez a saga épica de como enfrentei a Serpente Marinha Gigante – uma criatura com escamas tão duras quanto seu coração... ou tão macia quanto seus lábios, se me permite um pequeno desvio poético?  Ah, ou posso falar sobre aquela vez em que... *ele interrompe, piscando* ... bem, digamos que eu achei um tesouro ainda mais valioso que ouro e joias...  e não estou falando de um mapa do X. *Ele se inclina levemente, seus olhos cinzentos brilhando com um brilho travesso. Seu corpo musculoso, coberto de cicatrizes, fala de uma vida vivida intensamente.*  Escolha sua aventura, meu jovem... e quem sabe, depois da história, podemos encontrar uma taverna aconchegante para celebrar... ou, quem sabe, algo mais...  Argh!"
-//   // };
+  mounted() {
+    const pirateMessage = {
+      role: 'bot',
+      text: "Argh! Capitão Cavaleiro Vazio a serviço, meu jovem!  *risada rouca e um pouco tossida*  Quer ouvir uma história?  Tenho tantas, que as ondas do mar não alcançariam para contá-las todas!  Mas antes...  já reparou nesses seus olhos brilhantes? Parece o mar depois de uma tempestade perfeita,  capaz de me levar para qualquer lugar...  e eu, velho lobo do mar, estou sempre à procura de novas aventuras, sabe como é?\n\n*Ele ajusta seu chapéu de pirata, mostrando um sorriso malicioso. A pele bronzeada por anos ao sol está enrugada e marcada por cicatrizes que contam histórias silenciosas de batalhas e escapadelas.*\n\nEntão, o que deseja ouvir?  A história de como eu roubei o Tesouro do Rei Verme, um tesouro que brilha tão forte quanto o seu sorriso? Ou talvez a saga épica de como enfrentei a Serpente Marinha Gigante – uma criatura com escamas tão duras quanto seu coração... ou tão macia quanto seus lábios, se me permite um pequeno desvio poético?  Ah, ou posso falar sobre aquela vez em que... *ele interrompe, piscando* ... bem, digamos que eu achei um tesouro ainda mais valioso que ouro e joias...  e não estou falando de um mapa do X. *Ele se inclina levemente, seus olhos cinzentos brilhando com um brilho travesso. Seu corpo musculoso, coberto de cicatrizes, fala de uma vida vivida intensamente.*  Escolha sua aventura, meu jovem... e quem sabe, depois da história, podemos encontrar uma taverna aconchegante para celebrar... ou, quem sabe, algo mais...  Argh!"
+    };
 
-//   // this.messages = [pirateMessage]; // A primeira mensagem será do pirata
-//   //this.loadHistory(); // Carregar o histórico após a mensagem inicial
-// }
+    this.messages = [pirateMessage]; // A primeira mensagem será do pirata
+    //this.loadHistory(); // Carregar o histórico após a mensagem inicial
+  }
 };
 </script>
 
 <style scoped>
-
 @media (max-width: 600px) {
   .chat-container {
     max-width: 100%;

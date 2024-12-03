@@ -9,7 +9,7 @@ app.use(cors());
 
 // Conectar ao MongoDB Atlas
 const uri = process.env.MONGODB_URI || 'mongodb+srv://Wendel:1234@wendel.9eamttz.mongodb.net/?retryWrites=true&w=majority&appName=Wendel';
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 30000})
     .then(() => console.log('Conectado ao MongoDB Atlas'))
     .catch(err => {
         console.error('Erro ao conectar ao MongoDB:', err.message);
